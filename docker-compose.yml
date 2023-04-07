@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  my-node-app:
+    build: .
+    ports:
+      - "5006:5006"
+    networks:
+      my-network:
+        aliases:
+          - my-node-container
+    healthcheck:
+      test: curl --fail http://my-node-container:5006/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  my-other-container:
+    image: alpine
+    command: sh -c "echo 'Hello from my other container!' && sleep 3600"
+   
+    networks:
+      my-network:
+        aliases:
+          - my-other-container
+    healthcheck:
+      test: curl --fail http://my-other-container:5006/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  my-network:
+    driver: bridge
